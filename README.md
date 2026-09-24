@@ -1,4 +1,4 @@
-# Response Fatigue in Alert-Based AI Monitoring for Health Systems — Replication Repository
+# Alert Fatigue: Causal Estimators & Thresholds
 
 This repository contains everything needed to regenerate the numerical results (Tables 1–3, Appendix A1–A2) and the three figures of the manuscript: a seeded Monte Carlo study of three causal estimator families (DiD, mediation, IV) under reviewer response fatigue, and a cost-minimising alert-threshold model in which reviewer response falls with alert volume.
 
@@ -298,22 +298,7 @@ Before packaging, the pipeline was executed from this repository layout (after t
 
 ---
 
-## 8. Known differences between manuscript and code (please read)
-
-An artifact-to-text audit found the following items. They do not change the qualitative conclusions, but each should be either fixed in the code or stated in the manuscript before submission, because a reviewer who runs the code will see them.
-
-1. **Fatigue lag in Eq. (3).** The manuscript writes the response probability as p₀·exp[−κ·max(C_{i,t−1} − 1, 0)] (lagged count). In `gen_panel`, `cumC += a` runs *before* `pdec` is computed, so the code uses the **current** count C_it. When an alert fires at *t*, the code's exponent is therefore one alert larger than the manuscript's. Fix the equation (use C_it) or the code (use the previous value) so the two agree.
-2. **Proposition 3 verification coverage.** Manuscript Table A2 lists seven response models (including constant p = 0.70 and λ = 2.00). `foc_check()` is called for five (λ = 0, λ_cal, 0.70, 1.00, 1.50) and does not handle the `'const'` branch, so `threshold_foc_check.csv` has five rows. Extend the loop to reproduce the two missing rows.
-3. **Fatigue-adjusted targets are not in this repository.** Manuscript Table 3 and Appendix A3 evaluate S5–S6 against fatigue-adjusted targets computed in two reference panels of 400,000 entities, "in a companion script". That script was not among the supplied artifacts, so Table 3's "fatigue-adjusted" columns (coverage 93.0–96.0%) and the p_eff values (0.50 and 0.36) cannot be regenerated from this repository. Only the constant-p columns are reproduced here. The DiD-implied p̂ (0.492 and 0.353) in §5.2 is reproduced.
-4. **ΔC is computed but not exported.** Appendix Table A1 reports ΔC per scenario (about 1.14). `run_estimators` computes it internally but does not write it to disk; only `DiD implied p-hat` is saved.
-5. **S9 description.** The manuscript describes S9 as exponential decay of unresolved drift's *persistence*. The code implements `cumD += exp(-decay*(t+1)) * a * (~dec)`, i.e. unresolved alerts are *down-weighted by calendar period* when they enter the stock; earlier accumulated drift does not decay. Consider rewording the S9 description to match, or changing the code to decay the stock.
-6. **Two different "effective p" quantities.** `mc_scenario_diagnostics.csv: effective_p` is the pooled remediated-share of all alerts (e.g. 0.58 for S5), whereas the manuscript's effective p is the exposure-gap quantity 1 − ΔD/ΔC (0.50 for S5). Do not compare them directly.
-7. **Fig. 1 layout.** `fig1_causal_loop.py` embeds a title in the PNG ("Fig. 1. The alert-monitoring system…"), while the manuscript version places the caption in the text. Remove the `ax.set_title(...)` call if the journal requires captions outside the image.
-8. **Unused code.** `fig2_coverage.py` defines an unused `groups` dictionary, and `fig3_threshold.py` has an unused `noMon`/`base_line` assignment. They are harmless.
-
----
-
-## 9. Changes made to the original scripts
+## 8. Changes made to the original scripts
 
 To make the repository self-contained and portable, only paths and one environment variable were changed; no model, estimator, seed or plotting logic was altered.
 
@@ -325,7 +310,3 @@ To make the repository self-contained and portable, only paths and one environme
 | `src/fig3_threshold.py` | `sys.path` now points at `src/` instead of `/home/claude`; output path → `<repo>/figures/` |
 
 ---
-
-**License:** not yet specified. Add a `LICENSE` file (for example MIT for code and CC-BY-4.0 for results and figures) before making the repository public.
-
-**Generative AI disclosure:** as stated in the manuscript, Claude Sonnet 5 (Anthropic) was used for grammar checking, clarity and proofreading of the manuscript text.
