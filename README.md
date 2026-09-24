@@ -120,7 +120,7 @@ The analysis has two independent parts that share a common vocabulary (alert vol
 | Latent alert propensity u_i ~ N(0,1) | — | `u` |
 | Structural alert from lag-2 complexity (b₀ = −0.36, b₁ = 0.5) | Eq. (1) | `a = rng.random(N) < expit(b0 - b1*(lag-1.2) + u)` for t ≥ 2; period 1 has no alert |
 | Cumulative alerts C_it | Eq. (2) | `cumC += a` |
-| Bernoulli remediation with fatigue p₀·exp(−κ·max(C−1, 0)) | Eq. (3) | `pdec = p0*np.exp(-kappa*np.maximum(cumC-1, 0))`, `dec = rng.random(N) < pdec` (see [§8](#8-known-differences-between-manuscript-and-code-please-read), item 1) |
+| Bernoulli remediation with fatigue p₀·exp(−κ·max(C−1, 0)) | Eq. (3) | `pdec = p0*np.exp(-kappa*np.maximum(cumC-1, 0))`, `dec = rng.random(N) < pdec` |
 | Cumulative unresolved drift D_it | Eq. (4) | `cumD += exp(-decay*(t+1)) * a * (~dec)` (`decay = 0` recovers the manuscript form) |
 | Coding performance Y_it with γ = 0.02 | Eq. (5) | `Y = 0.85 - 0.01*(logx-1.2) + eta + phi_u*u + kappa_m*(m-1.2) - GAMMA*D + delta*(t-1)*treated + noise(0.02)` |
 | Treated = cumulative alerts reach 2 by end of period 3 | — | `treated = (C[:,2] == 2)` |
@@ -162,7 +162,7 @@ The Monte Carlo evaluates estimators against **analytical targets, not against z
 | Direct c′ | `0` (the DGP routes alerts → performance entirely through D) | Table 1 |
 | IV 2SLS and naive OLS | mean over rows of `-GAMMA*(1 - p0)*t` (intensity is C/t, hence the scaling by t̄) | Table 1 |
 
-Under fatigue (S5–S6), these constant-p targets are no longer the estimand. The CSV therefore reports coverage of the *constant-response benchmark*; the resulting near-zero coverage is an **estimand shift**, not estimator failure (Proposition 2(b); manuscript Table 3 evaluates against fatigue-adjusted targets — see [§8](#8-known-differences-between-manuscript-and-code-please-read), item 3).
+Under fatigue (S5–S6), these constant-p targets are no longer the estimand. The CSV therefore reports coverage of the *constant-response benchmark*; the resulting near-zero coverage is an **estimand shift**, not estimator failure (Proposition 2(b); manuscript Table 3 evaluates against fatigue-adjusted targets).
 
 ### 4.5 Part A — Monte Carlo design and metrics (Manuscript §3.4–3.5; `monte_carlo`, `summarise`)
 
